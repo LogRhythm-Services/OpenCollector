@@ -4,18 +4,20 @@
 # This function should be used for adding all metadata to your output - It scrubs illegal characters like | and \n
 # Example function call: add_field(.input.field1; .output.subject)
 def add_field($input_field; output_field):
-    #Input field validation check
-    if $input_field then
-
-        #Convert input_field value as Json text string
-        if ($input_field | type == "string") then
-        
-		    # Strip out control codes and extended characters from input field value. This includes characters like: \r \n \b \t \u007f ☺ ☻ ♥ ♦ ⌂
-            ($input_field | explode | map(select(. > 31 and . < 127)) | implode) as $strip_control |
-
+    # input_field validation check
+    if
+        $input_field
+    then
+        # Convert input_field value as Json text string
+        if
+            ($input_field | type == "string")
+        then
+            # Strip out control codes and extended characters from input field value. This includes characters like: [\b \t \n \u000b \f \r \u000e \u000f]
+            ($input_field | explode | map(select(. > 31)) | implode) as $strip_control
+            |
             # Retain the | removal to support regex parsing in SIEM
-            if ($strip_control | contains("|")) then ($strip_control | split("|") | join ("-")) as $strip_pipe else $strip_control as $strip_pipe end |
-
+            if ($strip_control | contains("|")) then ($strip_control | split("|") | join ("-")) as $strip_pipe else $strip_control as $strip_pipe end
+            |
             # Cleanup completed
             output_field = $strip_pipe
         else
@@ -25,6 +27,7 @@ def add_field($input_field; output_field):
         .
     end
 ;
+
 
 def sdp($message):
     # Lr Metadata Mapping - Input to Output
