@@ -20,4 +20,5 @@
 
 
 A means to run step 5 as a single command is possible through the following:
+
 *cat webhook_sdp.pipe | ./lrctl oc pipe augment import && ./lrctl oc restart*
